@@ -1,4 +1,23 @@
+<div align="center">
+
+![GameFrameX Logo](https://download.alianblank.com/gameframex/gameframex_logo_320.png)
+
 # GameFrameX UPM Registry
+
+[![Version](https://img.shields.io/github/v/release/GameFrameX/gameframex-upm-registry?label=version&color=green)](https://github.com/GameFrameX/gameframex-upm-registry/releases)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+**Cloudflare Worker that provides Unity Package Manager registry APIs for GameFrameX packages.**
+
+---
+
+🌐 **Language**: **English** | [简体中文](README.zh-CN.md) | [繁體中文](README.zh-TW.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
+
+---
+
+</div>
+
+## Project Overview
 
 Cloudflare Worker that provides Unity Package Manager registry APIs for GameFrameX packages hosted on [cnb.cool](https://cnb.cool/GameFrameX/npm).
 
@@ -9,7 +28,7 @@ Unity's Package Manager requires `/-/v1/search` and `/-/all` endpoints to displa
 - Package discovery and protocol compatibility: handled by the Worker
 - Package file download: still served directly by `npm.cnb.cool`
 
-## Endpoints
+## Architecture
 
 | Endpoint | Description |
 |---|---|
@@ -22,7 +41,7 @@ Unity's Package Manager requires `/-/v1/search` and `/-/all` endpoints to displa
 
 All `dist.tarball` URLs point to `npm.cnb.cool`, so download traffic never goes through the Worker.
 
-## Unity Setup
+## Quick Start
 
 Add to your project's `Packages/manifest.json`:
 
@@ -88,12 +107,6 @@ npm install
 cp .dev.vars.example .dev.vars
 npm run dev
 ```
-
-## Limitations
-
-- Designed for public cnb.cool repos, no private token passthrough.
-- Search is name-based matching, no full-text scoring.
-- Download availability depends on cnb.cool tarball accessibility.
 
 ## License
 
