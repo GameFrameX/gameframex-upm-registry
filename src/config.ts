@@ -1,11 +1,11 @@
 import type { AdapterConfig } from "./types";
 
-interface EnvSource {
-  [key: string]: string | undefined;
+export interface EnvSource {
+  [key: string]: unknown;
 }
 
 const DEFAULTS = {
-  artifactPageUrl: "https://cnb.cool/GameFrameX/npm",
+  apiSlug: "GameFrameX/npm",
   registryUrl: "https://npm.cnb.cool/GameFrameX/npm/-/packages/",
   registryName: "GameFrameX UPM Adapter",
   registryScope: "com.gameframex",
@@ -14,15 +14,20 @@ const DEFAULTS = {
   catalogConcurrency: 6,
 } as const;
 
+function str(env: EnvSource, key: string): string | undefined {
+  const v = env[key];
+  return typeof v === "string" ? v : undefined;
+}
+
 export function createConfig(env: EnvSource): AdapterConfig {
   return {
-    cnbArtifactPageUrl: normalizeUrl(env.CNB_ARTIFACT_PAGE_URL ?? DEFAULTS.artifactPageUrl),
-    cnbRegistryUrl: normalizeUrl(env.CNB_NPM_REGISTRY_URL ?? DEFAULTS.registryUrl),
-    registryName: (env.REGISTRY_NAME ?? DEFAULTS.registryName).trim(),
-    registryScope: (env.REGISTRY_SCOPE ?? DEFAULTS.registryScope).trim(),
-    cacheTtlMs: readInt(env.CACHE_TTL_SECONDS, DEFAULTS.cacheTtlMs / 1000) * 1000,
-    searchMaxSize: readInt(env.SEARCH_MAX_SIZE, DEFAULTS.searchMaxSize),
-    catalogConcurrency: readInt(env.CATALOG_CONCURRENCY, DEFAULTS.catalogConcurrency),
+    cnbApiSlug: (str(env, "CNB_API_SLUG") ?? DEFAULTS.apiSlug).trim(),
+    cnbRegistryUrl: normalizeUrl(str(env, "CNB_NPM_REGISTRY_URL") ?? DEFAULTS.registryUrl),
+    registryName: (str(env, "REGISTRY_NAME") ?? DEFAULTS.registryName).trim(),
+    registryScope: (str(env, "REGISTRY_SCOPE") ?? DEFAULTS.registryScope).trim(),
+    cacheTtlMs: readInt(str(env, "CACHE_TTL_SECONDS"), DEFAULTS.cacheTtlMs / 1000) * 1000,
+    searchMaxSize: readInt(str(env, "SEARCH_MAX_SIZE"), DEFAULTS.searchMaxSize),
+    catalogConcurrency: readInt(str(env, "CATALOG_CONCURRENCY"), DEFAULTS.catalogConcurrency),
   };
 }
 

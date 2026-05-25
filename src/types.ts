@@ -1,5 +1,5 @@
 export interface AdapterConfig {
-  cnbArtifactPageUrl: string;
+  cnbApiSlug: string;
   cnbRegistryUrl: string;
   registryName: string;
   registryScope: string;
@@ -10,7 +10,7 @@ export interface AdapterConfig {
 
 export interface CatalogEntry {
   name: string;
-  packagePageUrl: string;
+  description: string;
 }
 
 export interface PersonLike {

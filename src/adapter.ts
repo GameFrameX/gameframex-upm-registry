@@ -1,13 +1,11 @@
-import { createConfig } from "./config";
-import { fetchAllPackuments, fetchCatalog, fetchPackument } from "./cnb";
-import type { AdapterConfig, Packument, PersonLike, SearchResultObject } from "./types";
+import { fetchPackument } from "./cnb";
+import type { AdapterConfig, CatalogEntry, Packument, PersonLike, SearchResultObject } from "./types";
 
-interface EnvSource {
-  [key: string]: string | undefined;
-}
-
-export async function handleRequest(request: Request, envSource: EnvSource): Promise<Response> {
-  const config = createConfig(envSource);
+export async function handleRequest(
+  request: Request,
+  config: AdapterConfig,
+  catalog: CatalogEntry[],
+): Promise<Response> {
   const url = new URL(request.url);
   const pathname = trimTrailingSlash(url.pathname) || "/";
 
@@ -19,7 +17,7 @@ export async function handleRequest(request: Request, envSource: EnvSource): Pro
     }
 
     if (pathname === "/") {
-      return json(buildHomePayload(config));
+      return json(buildHomePayload(config, catalog));
     }
 
     if (pathname === "/-/ping") {
@@ -27,11 +25,11 @@ export async function handleRequest(request: Request, envSource: EnvSource): Pro
     }
 
     if (pathname === "/-/all") {
-      return json(await fetchAllPackuments(config), 200, cacheHeaders(config));
+      return json(await fetchAllPackuments(config, catalog), 200, cacheHeaders(config));
     }
 
     if (pathname === "/-/v1/search") {
-      return json(await buildSearchPayload(url, config), 200, cacheHeaders(config));
+      return json(await buildSearchPayload(url, config, catalog), 200, cacheHeaders(config));
     }
 
     const distTagMatch = pathname.match(/^\/-\/package\/([^/]+)\/dist-tags$/);
@@ -59,14 +57,11 @@ export async function handleRequest(request: Request, envSource: EnvSource): Pro
   }
 }
 
-function buildHomePayload(config: AdapterConfig) {
+function buildHomePayload(config: AdapterConfig, catalog: CatalogEntry[]) {
   return {
     name: config.registryName,
     scope: config.registryScope,
-    upstream: {
-      artifactPage: config.cnbArtifactPageUrl,
-      npmRegistry: config.cnbRegistryUrl,
-    },
+    packageCount: catalog.length,
     endpoints: {
       search: "/-/v1/search?text=com.gameframex&size=20&from=0",
       all: "/-/all",
@@ -74,11 +69,20 @@ function buildHomePayload(config: AdapterConfig) {
       package: `/${config.registryScope}.unity`,
       distTags: `/-/package/${config.registryScope}.unity/dist-tags`,
     },
-    note: "This adapter only adds package discovery and packument endpoints. Tarball downloads still go directly to CNB.",
+    note: "Package catalog refreshed every 6 hours via CNB API. Tarball downloads go directly to CNB.",
   };
 }
 
-async function buildSearchPayload(url: URL, config: AdapterConfig) {
+async function fetchAllPackuments(config: AdapterConfig, catalog: CatalogEntry[]): Promise<Record<string, Packument>> {
+  const results = await mapWithConcurrency(catalog, config.catalogConcurrency, async (entry) => {
+    const packument = await fetchPackument(config, entry.name);
+    return [entry.name, packument] as const;
+  });
+
+  return Object.fromEntries(results);
+}
+
+async function buildSearchPayload(url: URL, config: AdapterConfig, catalog: CatalogEntry[]) {
   const text = (url.searchParams.get("text") ?? "").trim().toLowerCase();
   const from = Math.max(0, Number.parseInt(url.searchParams.get("from") ?? "0", 10) || 0);
   const size = Math.min(
@@ -86,7 +90,6 @@ async function buildSearchPayload(url: URL, config: AdapterConfig) {
     Math.max(1, Number.parseInt(url.searchParams.get("size") ?? "20", 10) || 20),
   );
 
-  const catalog = await fetchCatalog(config);
   const filtered = catalog.filter((entry) => matchesSearch(entry.name, text));
   const page = filtered.slice(from, from + size);
 
@@ -118,7 +121,7 @@ function buildSearchObject(packument: Packument, config: AdapterConfig, position
       date,
       publisher: normalizePerson(manifest.author),
       links: compactStringRecord({
-        npm: `${config.cnbArtifactPageUrl}-/registries/${encodeURIComponent(packument.name)}`,
+        npm: `https://cnb.cool/${config.cnbApiSlug}/-/registries/${encodeURIComponent(packument.name)}`,
         repository: normalizeRepositoryUrl(manifest.repository?.url),
         homepage: manifest.homepage,
         bugs: manifest.bugs?.url,
@@ -192,4 +195,21 @@ function json(body: unknown, status = 200, extraHeaders: HeadersInit = {}): Resp
       ...extraHeaders,
     },
   });
+}
+
+async function mapWithConcurrency<T, R>(items: T[], concurrency: number, mapper: (item: T) => Promise<R>): Promise<R[]> {
+  const results: R[] = new Array(items.length);
+  let index = 0;
+
+  async function worker(): Promise<void> {
+    while (index < items.length) {
+      const currentIndex = index;
+      index += 1;
+      results[currentIndex] = await mapper(items[currentIndex]);
+    }
+  }
+
+  const workerCount = Math.max(1, Math.min(concurrency, items.length));
+  await Promise.all(Array.from({ length: workerCount }, () => worker()));
+  return results;
 }

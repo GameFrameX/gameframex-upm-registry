@@ -3,6 +3,17 @@ main = "src/index.ts"
 compatibility_date = "2026-05-25"
 workers_dev = true
 
+routes = [
+  { pattern = "gameframex.upm.alianblank.uk", custom_domain = true }
+]
+
+[triggers]
+crons = ["0 */6 * * *"]
+
+[[kv_namespaces]]
+binding = "CATALOG_KV"
+id = "PLACEHOLDER_KV_ID"
+
 [vars]
 CNB_ARTIFACT_PAGE_URL = "https://cnb.cool/GameFrameX/npm"
 CNB_NPM_REGISTRY_URL = "https://npm.cnb.cool/GameFrameX/npm/-/packages/"
