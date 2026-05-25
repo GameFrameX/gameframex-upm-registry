@@ -50,7 +50,7 @@ Unity の Package Manager は「My Registries」にパッケージを表示す�
   "scopedRegistries": [
     {
       "name": "GameFrameX",
-      "url": "https://gameframex-upm-registry.wangfj11.workers.dev",
+      "url": "https://gameframex.upm.alianblank.uk",
       "scopes": [
         "com.gameframex"
       ]

@@ -50,7 +50,7 @@ Unity 的 Package Manager 需要 `/-/v1/search` 和 `/-/all` 接口才能在"My 
   "scopedRegistries": [
     {
       "name": "GameFrameX",
-      "url": "https://gameframex-upm-registry.wangfj11.workers.dev",
+      "url": "https://gameframex.upm.alianblank.uk",
       "scopes": [
         "com.gameframex"
       ]
