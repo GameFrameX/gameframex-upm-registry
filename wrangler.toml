@@ -1,4 +1,4 @@
-name = "gameframex-upm-cloudflare-worker"
+name = "gameframex-upm-registry"
 main = "src/index.ts"
 compatibility_date = "2026-05-25"
 workers_dev = true
