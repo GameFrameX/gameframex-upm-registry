@@ -43,7 +43,7 @@ Unity 的 Package Manager 需要 `/-/v1/search` 和 `/-/all` 接口才能在"My 
 
 ## 快速開始
 
-將以下內容添加到專案的 `Packages/manifest.json`：
+編輯 Unity 專案的 `Packages/manifest.json`，添加 `scopedRegistries` 部分：
 
 ```json
 {
@@ -61,6 +61,8 @@ Unity 的 Package Manager 需要 `/-/v1/search` 和 `/-/all` 接口才能在"My 
   }
 }
 ```
+
+> `scopes` 控制哪些套件透過此註冊表解析。只有以 `com.gameframex` 開頭的套件才會從這個註冊表取得。如果使用了更多 GameFrameX 套件，可以添加更多 scope。
 
 ## 專案結構
 

@@ -43,7 +43,7 @@ Unity の Package Manager は「My Registries」にパッケージを表示す�
 
 ## クイックスタート
 
-プロジェクトの `Packages/manifest.json` に以下を追加してください：
+Unity プロジェクトの `Packages/manifest.json` を編集し、`scopedRegistries` セクションを追加してください：
 
 ```json
 {
@@ -61,6 +61,8 @@ Unity の Package Manager は「My Registries」にパッケージを表示す�
   }
 }
 ```
+
+> `scopes` は、どのパッケージをこのレジストリから解決するかを制御します。`com.gameframex` で始まるパッケージのみがこのレジストリから取得されます。追加の GameFrameX パッケージを使用する場合は、スコープを追加してください。
 
 ## プロジェクト構成
 

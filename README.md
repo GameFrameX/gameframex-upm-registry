@@ -43,7 +43,7 @@ All `dist.tarball` URLs point to `npm.cnb.cool`, so download traffic never goes 
 
 ## Quick Start
 
-Add to your project's `Packages/manifest.json`:
+Edit your Unity project's `Packages/manifest.json` and add the `scopedRegistries` section:
 
 ```json
 {
@@ -61,6 +61,8 @@ Add to your project's `Packages/manifest.json`:
   }
 }
 ```
+
+> `scopes` controls which packages are resolved through this registry. Only packages whose names start with `com.gameframex` will be fetched from it. Add more scopes if you use additional GameFrameX packages.
 
 ## Project Structure
 

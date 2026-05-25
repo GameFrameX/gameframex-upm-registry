@@ -43,7 +43,7 @@ Unity의 Package Manager는 "My Registries"에 패키지를 표시하려면 `/-/
 
 ## 빠른 시작
 
-프로젝트의 `Packages/manifest.json`에 다음을 추가하세요:
+Unity 프로젝트의 `Packages/manifest.json`을 편집하여 `scopedRegistries` 섹션을 추가하세요:
 
 ```json
 {
@@ -61,6 +61,8 @@ Unity의 Package Manager는 "My Registries"에 패키지를 표시하려면 `/-/
   }
 }
 ```
+
+> `scopes`는 이 레지스트리를 통해 어떤 패키지를 해석할지 제어합니다. `com.gameframex`로 시작하는 패키지만 이 레지스트리에서 가져옵니다. 추가 GameFrameX 패키지를 사용하는 경우 scope를 추가하세요.
 
 ## 프로젝트 구조
 
