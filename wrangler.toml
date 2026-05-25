@@ -1,0 +1,13 @@
+name = "gameframex-upm-cloudflare-worker"
+main = "src/index.ts"
+compatibility_date = "2026-05-25"
+workers_dev = true
+
+[vars]
+CNB_ARTIFACT_PAGE_URL = "https://cnb.cool/GameFrameX/npm"
+CNB_NPM_REGISTRY_URL = "https://npm.cnb.cool/GameFrameX/npm/-/packages/"
+REGISTRY_NAME = "GameFrameX UPM Registry"
+REGISTRY_SCOPE = "com.gameframex"
+CACHE_TTL_SECONDS = "300"
+SEARCH_MAX_SIZE = "50"
+CATALOG_CONCURRENCY = "6"

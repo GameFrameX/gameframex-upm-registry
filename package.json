@@ -1,0 +1,17 @@
+{
+  "name": "gameframex-upm-cloudflare-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.json --noEmit false --outDir .tmp-build",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260523.0",
+    "typescript": "^5.8.3",
+    "wrangler": "^4.18.0"
+  }
+}
