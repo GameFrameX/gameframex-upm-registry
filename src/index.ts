@@ -1,5 +1,5 @@
 import { createConfig } from "./config";
-import { fetchCatalogFromApi, fetchPackument } from "./cnb";
+import { fetchCatalogFromApi } from "./cnb";
 import { handleRequest } from "./adapter";
 import type { CatalogEntry } from "./types";
 
@@ -22,13 +22,28 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const config = createConfig(env);
     const catalog = await readCatalog(env);
-    return handleRequest(request, config, catalog);
+
+    const refreshFn = isRefreshAuthorized(request, env)
+      ? () => refreshCatalog(env)
+      : undefined;
+
+    return handleRequest(request, config, catalog, refreshFn);
   },
 
   async scheduled(_event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
     ctx.waitUntil(refreshCatalog(env));
   },
 };
+
+function isRefreshAuthorized(request: Request, env: Env): boolean {
+  const token = env.CNB_NPM_TOKEN;
+  if (!token) {
+    return false;
+  }
+
+  const auth = request.headers.get("Authorization");
+  return auth === `Bearer ${token}`;
+}
 
 async function readCatalog(env: Env): Promise<CatalogEntry[]> {
   if (!env.CATALOG_KV) {

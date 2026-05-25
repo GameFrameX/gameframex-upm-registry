@@ -5,14 +5,26 @@ export async function handleRequest(
   request: Request,
   config: AdapterConfig,
   catalog: CatalogEntry[],
+  refreshCatalogFn?: () => Promise<void>,
 ): Promise<Response> {
   const url = new URL(request.url);
   const pathname = trimTrailingSlash(url.pathname) || "/";
 
   try {
+    if (request.method === "POST") {
+      if (pathname === "/-/refresh") {
+        if (!refreshCatalogFn) {
+          return json({ error: "Refresh not available" }, 403);
+        }
+        await refreshCatalogFn();
+        return json({ ok: true, message: "Catalog refreshed" });
+      }
+      return json({ error: "POST not supported." }, 405);
+    }
+
     if (request.method !== "GET" && request.method !== "HEAD") {
-      return json({ error: "Only GET and HEAD are supported." }, 405, {
-        Allow: "GET, HEAD",
+      return json({ error: "Only GET, HEAD and POST are supported." }, 405, {
+        Allow: "GET, HEAD, POST",
       });
     }
 
